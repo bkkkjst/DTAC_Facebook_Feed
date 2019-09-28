@@ -1,6 +1,7 @@
 package dev.keepcoding.dtacfacebookfeed.adapter;
 
 import android.content.Context;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import dev.keepcoding.dtacfacebookfeed.R;
 import dev.keepcoding.dtacfacebookfeed.model.Feed;
@@ -67,12 +73,20 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         public void bind(Feed feed) {
             tvMessage.setText(feed.getMessage());
-            tvCreateTime.setText(feed.getCreatedTime());
+            tvCreateTime.setText(getDateTime(feed.getCreatedTime()));
         }
 
         private String getDateTime(String strCreateTime) {
+            String createTime = "";
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            try {
+                Date date = dateFormat.parse(strCreateTime);
 
-            return "";
+                createTime = DateUtils.getRelativeTimeSpanString(date.getTime()).toString();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return createTime;
         }
     }
 

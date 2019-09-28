@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CallbackManager callbackManager;
     private LoginButton loginButton;
+    private AccessTokenTracker accessTokenTracker;
 
     private static final String TAG = "MainActivity";
 
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 super.onScrolled(recyclerView, dx, dy);
                 LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
-                if (!isLoading) {
+                if (!isLoading && !mFeeds.isEmpty()) {
                     if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == mFeeds.size() - 1) {
                         //bottom of list
                         loadMore();
@@ -142,6 +144,17 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "onError: " + exception.toString());
             }
         });
+
+        accessTokenTracker = new AccessTokenTracker() {
+            @Override
+            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+                if (currentAccessToken == null) {
+                    //write your code here what to do when user logout
+                    mFeeds.clear();
+                    mFeedRecyclerViewAdapter.updateFeeds(mFeeds);
+                }
+            }
+        };
     }
 
 
@@ -172,11 +185,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                         if(data != null){
-
-                            mServerResponse = data;
-
                             if (mFeeds.addAll(data.getFeeds())) {
-                                mFeedRecyclerViewAdapter.notifyItemRangeInserted(mFeedRecyclerViewAdapter.getItemCount(), mFeeds.size());
+                                mServerResponse = data;
                             }
                         }
 
