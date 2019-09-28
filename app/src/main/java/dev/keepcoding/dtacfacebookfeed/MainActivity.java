@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private RecyclerView rvFeed;
+    private ProgressBar loading;
     private FeedRecyclerViewAdapter mFeedRecyclerViewAdapter;
 
     private List<Feed> mFeeds = new ArrayList<>();
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         // initialView
         rvFeed = findViewById(R.id.rv_feed);
+        loading = findViewById(R.id.pb_loading);
 
         mFeedRecyclerViewAdapter = new FeedRecyclerViewAdapter(getApplicationContext(), mFeeds);
         rvFeed.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -77,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
                         //bottom of list
                         loadMore();
                         isLoading = true;
+                        loading.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -115,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
                                 mFeeds = mServerResponse.getFeeds();
 
                                 mFeedRecyclerViewAdapter.updateFeeds(mFeeds);
+
+                                loading.setVisibility(View.GONE);
                             }
                         }
                 );
@@ -175,6 +182,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                         isLoading = false;
+
+                        loading.setVisibility(View.GONE);
                     }
                 }
         );
