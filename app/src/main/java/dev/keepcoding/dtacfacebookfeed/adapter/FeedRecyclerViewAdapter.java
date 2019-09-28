@@ -41,7 +41,7 @@ public class FeedRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    public void updateFeeds(List<Feed> feeds){
+    public void updateFeeds(List<Feed> feeds) {
         mFeeds = feeds;
         notifyDataSetChanged();
     }
