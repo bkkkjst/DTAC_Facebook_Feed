@@ -10,9 +10,11 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         callbackManager = CallbackManager.Factory.create();
 
         loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions(Arrays.asList("email", "user_posts"));
+        loginButton.setReadPermissions(Arrays.asList("email", "public_profile", "user_posts"));
 
         // Callback registration
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -42,6 +44,26 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(LoginResult loginResult) {
                 // App code
                 Log.i(TAG, "onSuccess: ");
+
+                AccessToken accessToken = loginResult.getAccessToken();
+
+
+                /* make the API call */
+                GraphRequest request = new GraphRequest(
+                        AccessToken.getCurrentAccessToken(),
+                        "/"+accessToken.getUserId()+"/feed",
+                        null,
+                        HttpMethod.GET,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+                                /* handle the result */
+                                Log.i(TAG, "response: " + response.toString());
+                            }
+                        }
+                );
+                request.executeAsync();
+
+
             }
 
             @Override
@@ -53,22 +75,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(FacebookException exception) {
                 // App code
-                Log.i(TAG, "onError: "+exception.toString());
+                Log.i(TAG, "onError: " + exception.toString());
             }
         });
-
-        /* make the API call */
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/me/feed",
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        /* handle the result */
-                    }
-                }
-        ).executeAsync();
     }
 
 
